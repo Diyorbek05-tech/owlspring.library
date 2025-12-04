@@ -4,7 +4,7 @@ import { IconChevronLeft, IconChevronRight, IconSearch } from '@tabler/icons-rea
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://176.57.208.162:8000/api/v1/',
+  baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/',
 });
 
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
