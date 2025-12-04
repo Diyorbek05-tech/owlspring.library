@@ -65,7 +65,6 @@ export default function HomePage() {
   return (
     <Box py={60} bg={isDark ? 'dark.9' : 'gray.0'}>
       <Container size="xl">
-        {/* Search Filter Section */}
         <Box mb={50} style={{ textAlign: 'center' }}>
           <Text size="lg" fw={600} mb="md" c="blue">
             Kitoblar bir joyda – qidiruvni shu yerdan boshlang
@@ -92,21 +91,17 @@ export default function HomePage() {
           </Group>
         </Box>
 
-        {/* Title */}
         <Text size="xl" fw={700} mb={40}>
           Eng yangi kitoblar
         </Text>
 
-        {/* Error */}
         {error && (
           <Box bg="red.1" p="md" mb={20} style={{ borderRadius: '8px' }}>
             <Text c="red">Xatolik: {error}</Text>
           </Box>
         )}
 
-        {/* Slider */}
         <Box style={{ position: 'relative' }}>
-          {/* Left Button */}
           <ActionIcon
             onClick={() => scroll('left')}
             style={{
@@ -124,7 +119,6 @@ export default function HomePage() {
             <IconChevronLeft size={20} />
           </ActionIcon>
 
-          {/* Books Container */}
           <Box
             id="booksContainer"
             style={{
@@ -191,7 +185,6 @@ export default function HomePage() {
             )}
           </Box>
 
-          {/* Right Button */}
           <ActionIcon
             onClick={() => scroll('right')}
             style={{

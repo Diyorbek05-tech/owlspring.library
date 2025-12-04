@@ -24,9 +24,7 @@ const Footer = () => {
       pb={30}
     >
       <Container size="xl">
-        {/* Main Content */}
         <Group justify="space-between" mb={50} grow>
-          {/* Logo va tavsif */}
           <Stack gap="md">
             <img src={logo} alt="Owlspring"  style={{ width: 70 }} />
             <Text size="sm" c="dimmed" maw={300}>
@@ -34,7 +32,6 @@ const Footer = () => {
             </Text>
           </Stack>
 
-          {/* Tezkor havolalar */}
           <Stack gap="md">
             <Text size="md" fw={600}>Tezkor havolalar</Text>
             <Stack gap="xs">
@@ -52,7 +49,6 @@ const Footer = () => {
             </Stack>
           </Stack>
 
-          {/* Bog'lanish */}
           <Stack gap="md">
             <Text size="md" fw={600}>Bog'lanish</Text>
             <Stack gap="xs">
@@ -71,7 +67,6 @@ const Footer = () => {
             </Stack>
           </Stack>
 
-          {/* Ijtimoiy tarmoqlar */}
           <Stack gap="md">
             <Text size="md" fw={600}>Ijtimoiy tarmoqlar</Text>
             <Group gap="md">
@@ -84,7 +79,6 @@ const Footer = () => {
 
         <Divider my={30} />
 
-        {/* Copyright */}
         <Group justify="space-between">
           <Text size="xs" c="dimmed">
             © 2024 EZMA. Barcha huquqlar himoyalangan
