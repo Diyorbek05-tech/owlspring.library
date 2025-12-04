@@ -3,7 +3,7 @@ import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/',
+  baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1',
 });
 
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
@@ -24,7 +24,7 @@ const Kitoblar = () => {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response = await api.get('api/v1/books/books/');
+      const response = await api.get('/books/books/');
       const booksData = Array.isArray(response.data) ? response.data : response.data.results || [];
       setBooks(booksData);
     } catch (err) {
