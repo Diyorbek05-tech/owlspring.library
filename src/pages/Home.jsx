@@ -25,7 +25,7 @@ export default function HomePage() {
   const fetchBooks = async () => {
     try {
       setLoading(true);
-      const response = await api.get('books/books/');
+      const response = await api.get('api/v1/books/books/');
       const booksData = Array.isArray(response.data) ? response.data : response.data.results || [];
       setBooks(booksData);
       setAllBooks(booksData);
@@ -164,10 +164,18 @@ export default function HomePage() {
                       <Text fw={600} size="sm" mb="xs" lineClamp={2}>
                         {book.name}
                       </Text>
-                      Muallif:
-                      {book.author && <Text size="xs" c="dimmed" mb="md">{book.author}</Text>}
-                      Nashriyot:
-                      {book.publisher && <Text size="xs" c="dimmed" mb="md">{book.publisher}</Text>}
+                      {book.author && (
+                        <>
+                          <Text size="xs" c="dimmed" fw={500}>Muallif:</Text>
+                          <Text size="xs" c="dimmed" mb="xs">{book.author}</Text>
+                        </>
+                      )}
+                      {book.publisher && (
+                        <>
+                          <Text size="xs" c="dimmed" fw={500}>Nashriyot:</Text>
+                          <Text size="xs" c="dimmed" mb="md">{book.publisher}</Text>
+                        </>
+                      )}
                       {book.quantity_in_library && (
                         <Badge size="lg" radius="xl" color="cyan" variant="light" fullWidth mb="md">
                           {book.quantity_in_library} TA KITOB MAVJUD
