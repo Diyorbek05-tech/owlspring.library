@@ -24,7 +24,7 @@ const LoginPage = () => {
   const formatPhone = (value) => {
     let numbers = value.replace(/\D/g, '');
     if (!numbers.startsWith('998')) {
-      numbers = '998' + numbers;
+      numbers = '+998' + numbers;
     }
     numbers = numbers.slice(0, 12);
     const raw = numbers.slice(3);
@@ -54,7 +54,7 @@ const LoginPage = () => {
     try {
       setLoading(true);
       
-      const cleanPhone = phone.replace(/\D/g, '');
+      const cleanPhone = '+' + phone.replace(/\D/g, '');
       
       const response = await fetch(
         'https://org-ave-jimmy-learners.trycloudflare.com/api/v1/auth/login/',
@@ -148,7 +148,7 @@ const LoginPage = () => {
               textShadow: '0 4px 15px rgba(0,0,0,0.3)',
             }}
           >
-            
+            📚
           </Text>
           <Text
             style={{

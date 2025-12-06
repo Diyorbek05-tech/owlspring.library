@@ -221,14 +221,6 @@ const Kitoblar = () => {
                 >
                   Yangi kitob
                 </Button>
-                <Button
-                  variant="light"
-                  color="red"
-                  onClick={handleLogout}
-                  size="md"
-                >
-                  Chiqish
-                </Button>
               </>
             )}
           </Group>
