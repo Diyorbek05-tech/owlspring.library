@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -16,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 
 const LoginPage = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const navigate = useNavigate();
   const isDark = colorScheme === 'dark';
   const [phone, setPhone] = useState('+998 ');
   const [password, setPassword] = useState('');
@@ -85,7 +87,7 @@ const LoginPage = () => {
         localStorage.setItem('refresh', data.refresh);
         localStorage.setItem('user', JSON.stringify(data.user || { phone }));
 
-        setTimeout(() => (window.location.href = '/kitoblar'), 2000);
+        setTimeout(() => navigate('/kitoblar'), 2000);
       } else {
         notifications.show({
           title: 'Xatolik',
@@ -173,7 +175,7 @@ const LoginPage = () => {
         >
           <Group justify="space-between" mb="lg">
             <ActionIcon
-              onClick={() => (window.location.href = '/')}
+              onClick={() => navigate('/')}
               variant="subtle"
               size="lg"
               color={isDark ? 'white' : 'gray'}

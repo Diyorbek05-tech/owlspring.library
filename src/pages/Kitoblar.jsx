@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button, Pagination, Grid, Loader, Center, Modal, TextInput, NumberInput, Group, Alert, ActionIcon, Table, Stack } from '@mantine/core';
+import { useNavigate } from 'react-router-dom';
+import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button, Pagination, Grid, Loader, Center, Modal, TextInput, NumberInput, Group, Alert, ActionIcon, Stack } from '@mantine/core';
 import { IconPlus, IconEdit, IconTrash, IconAlertCircle, IconSearch } from '@tabler/icons-react';
 
 const API_BASE = 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1';
@@ -8,6 +9,7 @@ const ITEMS_PER_PAGE = 12;
 
 const Kitoblar = () => {
   const { colorScheme } = useMantineColorScheme();
+  const navigate = useNavigate();
   const isDark = colorScheme === 'dark';
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +126,7 @@ const Kitoblar = () => {
 
       if (response.status === 401) {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        navigate('/login');
         return;
       }
 
@@ -136,7 +138,7 @@ const Kitoblar = () => {
         const errData = await response.json();
         setError(errData.detail || 'Saqlashda xatolik yuz berdi');
       }
-    }  finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -149,7 +151,7 @@ const Kitoblar = () => {
       const token = localStorage.getItem('token');
       
       if (!token) {
-        window.location.href = '/login';
+        navigate('/login');
         return;
       }
 
@@ -160,7 +162,7 @@ const Kitoblar = () => {
 
       if (response.status === 401) {
         localStorage.removeItem('token');
-        window.location.href = '/login';
+        navigate('/login');
         return;
       }
 
@@ -182,7 +184,7 @@ const Kitoblar = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsAuthenticated(false);
-    window.location.href = '/login';
+    navigate('/login');
   };
 
   // Filter books
@@ -202,7 +204,7 @@ const Kitoblar = () => {
         <Group justify="space-between" mb={40} align="flex-start">
           <Box>
             <Text size="xl" fw={700} mb="xs" c={isDark ? 'white' : 'dark'}>
-              📚 Barcha kitoblar
+               Barcha kitoblar
             </Text>
             <Text size="sm" c="dimmed">
               Jami {books.length} ta kitob
@@ -288,7 +290,6 @@ const Kitoblar = () => {
                           e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        {/* Edit/Delete buttons */}
                         {isAuthenticated && (
                           <Group
                             gap="xs"

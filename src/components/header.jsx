@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Group, Button, Box, useMantineColorScheme, useMantineTheme } from "@mantine/core";
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Header = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
+  const navigate = useNavigate();
   const isDark = colorScheme === 'dark';
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -26,7 +27,7 @@ const Header = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setIsAuthenticated(false);
-    window.location.href = '/';
+    navigate('/');
   };
 
   const navLinks = [
