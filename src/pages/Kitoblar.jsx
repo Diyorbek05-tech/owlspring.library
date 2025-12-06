@@ -136,9 +136,7 @@ const Kitoblar = () => {
         const errData = await response.json();
         setError(errData.detail || 'Saqlashda xatolik yuz berdi');
       }
-    } catch (err) {
-      setError('Saqlashda xatolik yuz berdi: ' + err.message);
-    } finally {
+    }  finally {
       setLoading(false);
     }
   };
@@ -416,7 +414,7 @@ const Kitoblar = () => {
       <Modal
         opened={modalOpen}
         onClose={handleCloseModal}
-        title={editingId ? '✏️ Kitobni tahrirlash' : '➕ Yangi kitob qo\'shish'}
+        title={editingId ? ' Kitobni tahrirlash' : ' Yangi kitob qo\'shish'}
         size="lg"
         centered
       >
@@ -461,7 +459,7 @@ const Kitoblar = () => {
               Bekor qilish
             </Button>
             <Button onClick={handleSave} loading={loading} size="md">
-              {editingId ? '💾 Saqlash' : '➕ Qo\'shish'}
+              {editingId ? ' Saqlash' : ' Qo\'shish'}
             </Button>
           </Group>
         </Stack>
