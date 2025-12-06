@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Kutubxonalar from './pages/Kutubxonalar';
 import Kitoblar from './pages/Kitoblar';
 import { Routes, Route } from 'react-router-dom';
+import LoginPage from './pages/Login';
 
 const App = ({ toggleColorScheme, colorScheme }) => {
   return (
@@ -11,7 +12,7 @@ const App = ({ toggleColorScheme, colorScheme }) => {
         <Route path="/" element={<Home />} />
         <Route path="/kutubxonalar" element={<Kutubxonalar />} />
         <Route path="/kitoblar" element={<Kitoblar />} />
-        <Route path="/kutubxonachi" element={<div>kutubxonachi</div>} />
+        <Route path="/kutubxonachi" element={<LoginPage />} />
       </Route>
     </Routes>
   );

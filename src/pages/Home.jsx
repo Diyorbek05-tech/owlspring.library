@@ -160,7 +160,7 @@ export default function HomePage() {
                     <Card.Section>
                       <Image src={BOOK_IMAGE} height={250} alt={book.name} style={{ objectFit: 'cover' }} />
                     </Card.Section>
-                    <Box p="lg">
+                    <Box py="lg">
                       <Text fw={600} size="sm" mb="xs" lineClamp={2}>
                         {book.name}
                       </Text>

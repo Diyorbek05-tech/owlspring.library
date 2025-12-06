@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Group, Button, Box, useMantineColorScheme, useMantineTheme } from "@mantine/core";
 import { NavLink } from 'react-router-dom';
 import logo from '../assets/logo.png';
@@ -7,6 +7,27 @@ const Header = () => {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const theme = useMantineTheme();
   const isDark = colorScheme === 'dark';
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+
+    const handleStorageChange = () => {
+      const newToken = localStorage.getItem('token');
+      setIsAuthenticated(!!newToken);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsAuthenticated(false);
+    window.location.href = '/';
+  };
 
   const navLinks = [
     { to: "/", label: "Bosh sahifa" },
@@ -23,14 +44,18 @@ const Header = () => {
         borderBottom: "1px solid #e0e0e0",
         display: "flex",
         alignItems: "center",
-        transition: "0.3s"
+        transition: "0.3s",
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        boxShadow: theme.shadows.sm
       }}
       bg={isDark ? "dark.8" : "white"}
     >
       <Group style={{ width: "100%", justifyContent: "space-between" }}>
         <NavLink to="/" style={{ textDecoration: 'none' }}>
           <Group gap="sm">
-            <img src={logo} alt="Logo" style={{  width: 68 }} />
+            <img src={logo} alt="Logo" style={{ width: 68 }} />
             <span style={{ fontSize: 24, fontWeight: 700, color: isDark ? "#fff" : "#000" }}>
               Owlspring
             </span>
@@ -56,7 +81,6 @@ const Header = () => {
           ))}
         </Group>
 
-        {/* Right Section */}
         <Group>
           <button
             onClick={() => toggleColorScheme()}
@@ -91,9 +115,22 @@ const Header = () => {
             </div>
           </button>
 
-          <NavLink to="/kutubxonachi" style={{ textDecoration: 'none' }}>
-            <Button variant="filled" radius="md">Kutubxonachi bo'lish</Button>
-          </NavLink>
+          {isAuthenticated ? (
+            <Button 
+              variant="filled" 
+              radius="md" 
+              color="red"
+              onClick={handleLogout}
+            >
+              Chiqish
+            </Button>
+          ) : (
+            <NavLink to="/kutubxonachi" style={{ textDecoration: 'none' }}>
+              <Button variant="filled" radius="md">
+                Kutubxonachi bo'lish
+              </Button>
+            </NavLink>
+          )}
         </Group>
       </Group>
     </Box>

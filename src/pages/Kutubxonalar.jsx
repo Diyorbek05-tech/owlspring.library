@@ -4,7 +4,7 @@ import { IconSearch, IconBook, IconPhone, IconMail, IconMapPin } from '@tabler/i
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/',
+  baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1',
 });
 
 const LIBRARY_IMAGE = 'https://ezma-client.vercel.app/assets/library-CY0z204p.webp';
@@ -33,7 +33,7 @@ const Kutubxonalar = () => {
   const fetchLibraries = async () => {
     try {
       setLoading(true);
-      const response = await api.get('api/v1/libraries/libraries/');
+      const response = await api.get('/libraries/libraries/');
       const librariesData = Array.isArray(response.data) ? response.data : response.data.results || [];
       setLibraries(librariesData);
       setFilteredLibraries(librariesData);
@@ -88,54 +88,56 @@ const Kutubxonalar = () => {
 
         <Grid gutter="lg">
           <Grid.Col span={{ base: 12, md: 3 }}>
-            <Card shadow="sm" radius="md" bg={isDark ? 'dark.7' : 'white'} p="lg">
-              <Stack gap="md">
-                <Box>
-                  <Button 
-                    fullWidth 
-                    variant={filters.sortBy === 'name-asc' ? 'filled' : 'light'}
-                    color="blue"
-                    size="md"
-                    onClick={() => handleSortChange('name-asc')}
-                  >
-                    Nomi (A-Z)
-                  </Button>
-                </Box>
+            <Box style={{ position: 'sticky', top: '80px' }}>
+              <Card shadow="sm" radius="md" bg={isDark ? 'dark.7' : 'white'} p="lg">
+                <Stack gap="md">
+                  <Box>
+                    <Button 
+                      fullWidth 
+                      variant={filters.sortBy === 'name-asc' ? 'filled' : 'light'}
+                      color="blue"
+                      size="md"
+                      onClick={() => handleSortChange('name-asc')}
+                    >
+                      Nomi (A-Z)
+                    </Button>
+                  </Box>
 
-                <Box>
-                  <Button
-                    fullWidth
-                    variant={filters.sortBy === 'books-asc' ? 'filled' : 'light'}
-                    color="blue"
-                    size="sm"
-                    onClick={() => handleSortChange('books-asc')}
-                  >
-                    Kitoblar soni (kamdan ko'p)
-                  </Button>
-                </Box>
+                  <Box>
+                    <Button
+                      fullWidth
+                      variant={filters.sortBy === 'books-asc' ? 'filled' : 'light'}
+                      color="blue"
+                      size="sm"
+                      onClick={() => handleSortChange('books-asc')}
+                    >
+                      Kitoblar soni (kamdan ko'p)
+                    </Button>
+                  </Box>
 
-                <Box>
-                  <Button
-                    fullWidth
-                    variant={filters.sortBy === 'books-desc' ? 'filled' : 'light'}
-                    color="blue"
-                    size="sm"
-                    onClick={() => handleSortChange('books-desc')}
-                  >
-                    Kitoblar soni (ko'p dan kam)
-                  </Button>
-                </Box>
+                  <Box>
+                    <Button
+                      fullWidth
+                      variant={filters.sortBy === 'books-desc' ? 'filled' : 'light'}
+                      color="blue"
+                      size="sm"
+                      onClick={() => handleSortChange('books-desc')}
+                    >
+                      Kitoblar soni (ko'p dan kam)
+                    </Button>
+                  </Box>
 
-                <Box>
-                  <Checkbox
-                    checked={filters.hasBooks}
-                    onChange={() => setFilters(prev => ({ ...prev, hasBooks: !prev.hasBooks }))}
-                    label="Faqat kitoblari mavjudlar"
-                    styles={{ label: { fontSize: '14px' } }}
-                  />
-                </Box>
-              </Stack>
-            </Card>
+                  <Box>
+                    <Checkbox
+                      checked={filters.hasBooks}
+                      onChange={() => setFilters(prev => ({ ...prev, hasBooks: !prev.hasBooks }))}
+                      label="Faqat kitoblari mavjudlar"
+                      styles={{ label: { fontSize: '14px' } }}
+                    />
+                  </Box>
+                </Stack>
+              </Card>
+            </Box>
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 9 }}>
@@ -226,15 +228,18 @@ const Kutubxonalar = () => {
                               )}
                             </Stack>
 
-                            <Button 
-                              variant="light" 
-                              color="blue" 
-                              fullWidth 
-                              size="sm"
-                              leftSection={<IconMapPin size={16} />}
-                            >
-                              Google Maps
-                            </Button>
+                            <div style={{ position: 'sticky', bottom: 0 }}>
+                                <Button 
+                                  variant="light" 
+                                  color="blue" 
+                                  fullWidth 
+                                  size="sm"
+                                  leftSection={<IconMapPin size={16} />}
+                                >
+                                  Google Maps
+                                </Button>
+                              </div>
+
                           </Box>
                         </Card>
                       </Grid.Col>

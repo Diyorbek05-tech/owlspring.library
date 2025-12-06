@@ -26,7 +26,7 @@ const Footer = () => {
       <Container size="xl">
         <Group justify="space-between" mb={50} grow>
           <Stack gap="md">
-            <img src={logo} alt="Owlspring"  style={{ width: 70 }} />
+            <img src={logo} alt="Owlspring"  style={{ width: 150 }} />
             <Text size="sm" c="dimmed" maw={300}>
               O'zbekistonning eng yirik kutubxona tarmog'i. Biz bilan kitob o'qishni boshlang!
             </Text>

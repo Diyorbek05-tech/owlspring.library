@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import Header from './header';
 import Footer from './footer';
 import { Outlet } from 'react-router-dom';
@@ -7,6 +8,13 @@ import { Box, Container, useMantineColorScheme } from '@mantine/core';
 const Layout = () => {
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
+  const location = useLocation();
+
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/kutubxonachi';
+
+  if (isAuthPage) {
+    return <Outlet />;
+  }
 
   return (
     <Box
