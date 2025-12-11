@@ -16,9 +16,11 @@ import {
   Stack,
   Card,
   Pagination,
+  Modal,
 } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle, IconPhone, IconMail, IconMapPin, IconBook } from '@tabler/icons-react';
 import axios from 'axios';
+import Map from './Map'; 
 
 const api = axios.create({
   baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1',
@@ -26,7 +28,6 @@ const api = axios.create({
 
 const LIBRARY_IMAGE = 'https://ezma-client.vercel.app/assets/library-CY0z204p.webp';
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
-const ITEMS_PER_PAGE = 12;
 
 const LibraryDetail = () => {
   const { id } = useParams();
@@ -40,6 +41,7 @@ const LibraryDetail = () => {
   const [error, setError] = useState(null);
   const [totalBooks, setTotalBooks] = useState(0);
   const [activePage, setActivePage] = useState(1);
+  const [mapModalOpened, setMapModalOpened] = useState(false);
 
   useEffect(() => {
     fetchLibraryDetail();
@@ -51,10 +53,8 @@ const LibraryDetail = () => {
       const pageParam = activePage > 1 ? `?page=${activePage}` : '';
       const response = await api.get(`/libraries/library/${id}/${pageParam}`);
       
-      // API response structure: results.library va results.books
       const { results, count } = response.data;
       
-      // Library ma'lumotlarini birlashtir
       const libraryData = {
         ...results.library,
         phone: results.phone,
@@ -65,7 +65,6 @@ const LibraryDetail = () => {
       setLibrary(libraryData);
       setTotalBooks(count);
       
-      // Books array
       const booksData = results.books || [];
       setBooks(booksData);
     } catch (err) {
@@ -76,16 +75,7 @@ const LibraryDetail = () => {
     }
   };
 
-  const openGoogleMaps = () => {
-    if (library?.address) {
-      const encoded = encodeURIComponent(library.address);
-      window.open(`https://www.google.com/maps/search/${encoded}`, '_blank');
-    }
-  };
-
-  const totalPages = Math.ceil(totalBooks / 10); // API-da 10 ta book per page
-  const startIndex = (activePage - 1) * 10;
-  const endIndex = startIndex + 10;
+  const totalPages = Math.ceil(totalBooks / 10);
   const currentBooks = books;
 
   if (error && !library) {
@@ -213,9 +203,9 @@ const LibraryDetail = () => {
                     fullWidth
                     color="blue"
                     leftSection={<IconMapPin size={18} />}
-                    onClick={openGoogleMaps}
+                    onClick={() => setMapModalOpened(true)}
                   >
-                    Google Maps-da ko'rish
+                    Xaritadan ko'rish
                   </Button>
                 </Box>
               )}
@@ -266,6 +256,33 @@ const LibraryDetail = () => {
             </Stack>
           </Grid.Col>
         </Grid>
+
+        <Modal
+          opened={mapModalOpened}
+          onClose={() => setMapModalOpened(false)}
+          title={
+            <Group gap="xs">
+              <IconMapPin size={20} />
+              <Text fw={600}>Xaritada joylashuv</Text>
+            </Group>
+          }
+          size="calc(100vw - 80px)"
+          fullScreen={window.innerWidth < 768}
+          styles={{
+            body: {
+              height: window.innerWidth < 768 ? '85vh' : '75vh',
+              padding: 0,
+            },
+            content: {
+              maxWidth: '1400px',
+            }
+          }}
+          centered
+        >
+          {library?.address && (
+            <Map address={library.address} libraryName={library.name} />
+          )}
+        </Modal>
 
         <Box mb={40}>
           <Text size="xl" fw={700} mb={20}>

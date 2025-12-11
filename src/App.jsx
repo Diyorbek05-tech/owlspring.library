@@ -6,6 +6,7 @@ import Kitoblar from './pages/Kitoblar';
 import BookDetail from './pages/BookDetail';
 import { Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/Login';
+import Map from './pages/Map';
 
 const App = ({ toggleColorScheme, colorScheme }) => {
   return (
@@ -17,6 +18,7 @@ const App = ({ toggleColorScheme, colorScheme }) => {
         <Route path="/kitoblar" element={<Kitoblar />} />
         <Route path="/kitoblar/:id" element={<BookDetail />} />
         <Route path="/kutubxonachi" element={<LoginPage />} />
+        <Route path="/map" element={<Map />} />
       </Route>
     </Routes>
   );

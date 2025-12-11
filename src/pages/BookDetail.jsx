@@ -207,9 +207,7 @@ const BookDetail = () => {
                   radius="md"
                   bg={isDark ? 'dark.7' : 'gray.1'}
                 >
-                  <Text size="sm" c="dimmed">
-                    ID: {book.id}
-                  </Text>
+                 tavsiya etamizki, kitobni olish uchun kutubxonaga oldindan murojaat qiling.
                 </Box>
               )}
 

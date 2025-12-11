@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button, Pagination, Grid, Loader, Center, Modal, TextInput, NumberInput, Group, Alert, ActionIcon, Stack } from '@mantine/core';
-import { IconPlus, IconEdit, IconTrash, IconAlertCircle, IconSearch } from '@tabler/icons-react';
+import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button, Pagination, Grid, Loader, Center, Modal, TextInput, NumberInput, Group, Alert, ActionIcon, Stack, Tabs, FileInput, Table, Menu } from '@mantine/core';
+import { IconPlus, IconEdit, IconTrash, IconAlertCircle, IconSearch, IconUpload, IconChevronDown } from '@tabler/icons-react';
+import * as XLSX from 'xlsx';
 
 const API_BASE = 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1';
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
@@ -19,6 +20,12 @@ const Kitoblar = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('single');
+  const [excelFile, setExcelFile] = useState(null);
+  const [excelPreview, setExcelPreview] = useState([]);
+  const [multipleBooks, setMultipleBooks] = useState([
+    { name: '', author: '', publisher: '', quantity_in_library: '' }
+  ]);
   const [formData, setFormData] = useState({
     name: '',
     author: '',
@@ -54,7 +61,8 @@ const Kitoblar = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const booksData = Array.isArray(data) ? data : data.results || [];
+        let booksData = Array.isArray(data) ? data : data.results || [];
+        booksData = booksData.reverse();
         setBooks(booksData);
       } else if (response.status === 401) {
         localStorage.removeItem('token');
@@ -81,6 +89,7 @@ const Kitoblar = () => {
         publisher: book.publisher || '',
         quantity_in_library: book.quantity_in_library || '',
       });
+      setActiveTab('single');
     } else {
       setEditingId(null);
       setFormData({
@@ -89,6 +98,7 @@ const Kitoblar = () => {
         publisher: '',
         quantity_in_library: '',
       });
+      setActiveTab('single');
     }
     setModalOpen(true);
   };
@@ -96,6 +106,9 @@ const Kitoblar = () => {
   const handleCloseModal = () => {
     setModalOpen(false);
     setEditingId(null);
+    setExcelFile(null);
+    setExcelPreview([]);
+    setMultipleBooks([{ name: '', author: '', publisher: '', quantity_in_library: '' }]);
   };
 
   const handleSave = async () => {
@@ -111,18 +124,33 @@ const Kitoblar = () => {
       const method = editingId ? 'PUT' : 'POST';
       const url = editingId 
         ? `${API_BASE}/books/book/${editingId}/` 
-        : `${API_BASE}/books/add-books/`;
+        : `${API_BASE}/books/books/`;
+
+      const payload = {
+        name: formData.name.trim(),
+        author: formData.author.trim(),
+      };
+
+      if (formData.publisher && formData.publisher.trim()) {
+        payload.publisher = formData.publisher.trim();
+      }
+
+      if (formData.quantity_in_library && parseInt(formData.quantity_in_library) > 0) {
+        payload.quantity_in_library = parseInt(formData.quantity_in_library);
+      }
+
+      console.log('Yuborilayotgan URL:', url);
+      console.log('Yuborilayotgan ma\'lumot:', payload);
 
       const response = await fetch(url, {
         method,
         headers: getHeaders(token),
-        body: JSON.stringify({
-          name: formData.name,
-          author: formData.author,
-          publisher: formData.publisher,
-          quantity_in_library: parseInt(formData.quantity_in_library) || 0,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      const text = await response.text();
+      console.log('Response Status:', response.status);
+      console.log('Response Body:', text);
 
       if (response.status === 401) {
         localStorage.removeItem('token');
@@ -135,11 +163,118 @@ const Kitoblar = () => {
         fetchBooks(token);
         setError(null);
       } else {
-        const errData = await response.json();
-        setError(errData.detail || 'Saqlashda xatolik yuz berdi');
+        try {
+          const errData = JSON.parse(text);
+          setError(errData.detail || 'Saqlashda xatolik yuz berdi');
+        } catch {
+          setError(`Xatolik (${response.status}): ${text}`);
+        }
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveMultiple = async () => {
+    const validBooks = multipleBooks.filter(b => b.name && b.author);
+    
+    if (validBooks.length === 0) {
+      setError('Kamida bitta kitobning nomi va muallifi bo\'lishi kerak');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+
+      for (const book of validBooks) {
+        const payload = {
+          name: book.name.trim(),
+          author: book.author.trim(),
+        };
+
+        if (book.publisher && book.publisher.trim()) {
+          payload.publisher = book.publisher.trim();
+        }
+
+        if (book.quantity_in_library && parseInt(book.quantity_in_library) > 0) {
+          payload.quantity_in_library = parseInt(book.quantity_in_library);
+        }
+
+        console.log('Yuborilayotgan ma\'lumot:', payload);
+
+        const response = await fetch(`${API_BASE}/books/books/`, {
+          method: 'POST',
+          headers: getHeaders(token),
+          body: JSON.stringify(payload),
+        });
+
+        const text = await response.text();
+        console.log('Response Status:', response.status);
+
+        if (!response.ok && response.status !== 201) {
+          try {
+            const errData = JSON.parse(text);
+            setError(`Xatolik: ${errData.detail || JSON.stringify(errData)}`);
+          } catch {
+            setError(`Xatolik (${response.status}): ${text}`);
+          }
+          return;
+        }
+      }
+
+      handleCloseModal();
+      fetchBooks(token);
+      setError(null);
+    } catch (err) {
+      console.error('Catch Error:', err);
+      setError('Saqlashda xatolik: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const parseExcelFile = async (file) => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      console.log('XLSX ma\'lumotlari:', jsonData);
+
+      if (jsonData.length === 0) {
+        setError('Faylda ma\'lumot topilmadi');
+        setExcelPreview([]);
+        return;
+      }
+
+      const parsedBooks = jsonData.map(row => {
+        const book = {
+          name: String(row.name || row.Kitob || row['Kitob nomi'] || '').trim() || '',
+          author: String(row.author || row.Muallif || row['Muallif nomi'] || '').trim() || '',
+          publisher: String(row.publisher || row.Nashriyot || '').trim() || '',
+          quantity_in_library: String(row.quantity_in_library || row.soni || row.Soni || '0').trim() || '0',
+        };
+        console.log('Parse qilingan kitob:', book);
+        return book;
+      }).filter(b => b.name && b.author);
+
+      console.log('Final parsed books:', parsedBooks);
+
+      if (parsedBooks.length === 0) {
+        setError('Nomi va muallifi bo\'lgan kitob topilmadi');
+        setExcelPreview([]);
+        return;
+      }
+
+      setExcelPreview(parsedBooks);
+      setMultipleBooks(parsedBooks);
+      setError(null);
+    } catch (err) {
+      console.error('Parse xatosi:', err);
+      setError('Faylni o\'qishda xatolik: ' + err.message);
+      setExcelPreview([]);
     }
   };
 
@@ -180,14 +315,6 @@ const Kitoblar = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setIsAuthenticated(false);
-    navigate('/login');
-  };
-
-  // Filter books
   const filteredBooks = books.filter(book =>
     book.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     book.author?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -212,16 +339,54 @@ const Kitoblar = () => {
           </Box>
           <Group>
             {isAuthenticated && (
-              <>
-                <Button
-                  leftSection={<IconPlus size={18} />}
-                  onClick={() => handleOpenModal()}
-                  color="blue"
-                  size="md"
-                >
-                  Yangi kitob
-                </Button>
-              </>
+              <Menu shadow="md">
+                <Menu.Target>
+                  <Button
+                    leftSection={<IconPlus size={18} />}
+                    rightSection={<IconChevronDown size={18} />}
+                    color="blue"
+                    size="md"
+                  >
+                    Kitob qo'shish
+                  </Button>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item 
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() => {
+                      setEditingId(null);
+                      setFormData({ name: '', author: '', publisher: '', quantity_in_library: '' });
+                      setActiveTab('single');
+                      setModalOpen(true);
+                    }}
+                  >
+                    Bitta kitob qo'shish
+                  </Menu.Item>
+                  <Menu.Item 
+                    leftSection={<IconPlus size={16} />}
+                    onClick={() => {
+                      setEditingId(null);
+                      setMultipleBooks([{ name: '', author: '', publisher: '', quantity_in_library: '' }]);
+                      setActiveTab('multiple');
+                      setModalOpen(true);
+                    }}
+                  >
+                    Bir nechta kitob qo'shish
+                  </Menu.Item>
+                  <Menu.Item 
+                    leftSection={<IconUpload size={16} />}
+                    onClick={() => {
+                      setEditingId(null);
+                      setExcelPreview([]);
+                      setExcelFile(null);
+                      setActiveTab('excel');
+                      setModalOpen(true);
+                    }}
+                  >
+                    Fayldan yuklash
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
             )}
           </Group>
         </Group>
@@ -421,55 +586,221 @@ const Kitoblar = () => {
       <Modal
         opened={modalOpen}
         onClose={handleCloseModal}
-        title={editingId ? ' Kitobni tahrirlash' : ' Yangi kitob qo\'shish'}
+        title={editingId ? 'Kitobni tahrirlash' : 'Kitob qo\'shish'}
         size="lg"
         centered
       >
-        <Stack gap="lg">
-          <TextInput
-            label="Kitob nomi *"
-            placeholder="Kitob nomini kiritish"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.currentTarget.value })}
-            size="md"
-            required
-          />
+        <Tabs value={activeTab} onTabChange={setActiveTab}>
+          <Tabs.List>
+            <Tabs.Tab value="single">
+              Bitta kitob
+            </Tabs.Tab>
+            <Tabs.Tab value="multiple">
+              Bir nechta kitob
+            </Tabs.Tab>
+            <Tabs.Tab value="excel">
+              Excel fayldan
+            </Tabs.Tab>
+          </Tabs.List>
 
-          <TextInput
-            label="Muallif *"
-            placeholder="Muallif nomini kiritish"
-            value={formData.author}
-            onChange={(e) => setFormData({ ...formData, author: e.currentTarget.value })}
-            size="md"
-            required
-          />
+          <Tabs.Panel value="single" pt="md">
+            <Stack gap="lg">
+              <TextInput
+                label="Kitob nomi *"
+                placeholder="Kitob nomini kiritish"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.currentTarget.value })}
+                size="md"
+                required
+              />
 
-          <TextInput
-            label="Nashriyot"
-            placeholder="Nashriyot nomini kiritish"
-            value={formData.publisher}
-            onChange={(e) => setFormData({ ...formData, publisher: e.currentTarget.value })}
-            size="md"
-          />
+              <TextInput
+                label="Muallif *"
+                placeholder="Muallif nomini kiritish"
+                value={formData.author}
+                onChange={(e) => setFormData({ ...formData, author: e.currentTarget.value })}
+                size="md"
+                required
+              />
 
-          <NumberInput
-            label="Kutubxonada mavjud kitoblar soni"
-            placeholder="0"
-            value={formData.quantity_in_library}
-            onChange={(val) => setFormData({ ...formData, quantity_in_library: val })}
-            min={0}
-            size="md"
-          />
+              <TextInput
+                label="Nashriyot"
+                placeholder="Nashriyot nomini kiritish"
+                value={formData.publisher}
+                onChange={(e) => setFormData({ ...formData, publisher: e.currentTarget.value })}
+                size="md"
+              />
 
-          <Group justify="flex-end" mt="xl">
-            <Button variant="light" onClick={handleCloseModal} size="md">
-              Bekor qilish
-            </Button>
-            <Button onClick={handleSave} loading={loading} size="md">
-              {editingId ? ' Saqlash' : ' Qo\'shish'}
-            </Button>
-          </Group>
-        </Stack>
+              <NumberInput
+                label="Kutubxonada mavjud kitoblar soni"
+                placeholder="0"
+                value={formData.quantity_in_library}
+                onChange={(val) => setFormData({ ...formData, quantity_in_library: val })}
+                min={0}
+                size="md"
+              />
+
+              <Group justify="flex-end" mt="xl">
+                <Button variant="light" onClick={handleCloseModal} size="md">
+                  Bekor qilish
+                </Button>
+                <Button onClick={handleSave} loading={loading} size="md">
+                  {editingId ? 'Saqlash' : 'Qo\'shish'}
+                </Button>
+              </Group>
+            </Stack>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="multiple" pt="md">
+            <Stack gap="lg" style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '8px' }}>
+              {multipleBooks.map((book, idx) => (
+                <Box key={idx} p="md" bg={isDark ? 'dark.7' : 'gray.1'} radius="md">
+                  <Group justify="space-between" mb="md">
+                    <Text fw={600}>Kitob {idx + 1}</Text>
+                    {multipleBooks.length > 1 && (
+                      <ActionIcon
+                        color="red"
+                        size="sm"
+                        onClick={() => {
+                          setMultipleBooks(multipleBooks.filter((_, i) => i !== idx));
+                        }}
+                      >
+                        <IconTrash size={16} />
+                      </ActionIcon>
+                    )}
+                  </Group>
+                  <Stack gap="sm">
+                    <TextInput
+                      label="Kitob nomi *"
+                      placeholder="Kitob nomini kiritish"
+                      value={book.name}
+                      onChange={(e) => {
+                        const updated = [...multipleBooks];
+                        updated[idx].name = e.currentTarget.value;
+                        setMultipleBooks(updated);
+                      }}
+                      size="sm"
+                    />
+
+                    <TextInput
+                      label="Muallif *"
+                      placeholder="Muallif nomini kiritish"
+                      value={book.author}
+                      onChange={(e) => {
+                        const updated = [...multipleBooks];
+                        updated[idx].author = e.currentTarget.value;
+                        setMultipleBooks(updated);
+                      }}
+                      size="sm"
+                    />
+
+                    <TextInput
+                      label="Nashriyot"
+                      placeholder="Nashriyot nomini kiritish"
+                      value={book.publisher}
+                      onChange={(e) => {
+                        const updated = [...multipleBooks];
+                        updated[idx].publisher = e.currentTarget.value;
+                        setMultipleBooks(updated);
+                      }}
+                      size="sm"
+                    />
+
+                    <NumberInput
+                      label="Soni"
+                      placeholder="0"
+                      value={book.quantity_in_library}
+                      onChange={(val) => {
+                        const updated = [...multipleBooks];
+                        updated[idx].quantity_in_library = val;
+                        setMultipleBooks(updated);
+                      }}
+                      min={0}
+                      size="sm"
+                    />
+                  </Stack>
+                </Box>
+              ))}
+
+              <Button
+                variant="light"
+                onClick={() => {
+                  setMultipleBooks([...multipleBooks, { name: '', author: '', publisher: '', quantity_in_library: '' }]);
+                }}
+                fullWidth
+              >
+                Yana qo'shish
+              </Button>
+
+              <Group justify="flex-end" mt="xl">
+                <Button variant="light" onClick={handleCloseModal} size="md">
+                  Bekor qilish
+                </Button>
+                <Button onClick={handleSaveMultiple} loading={loading} size="md">
+                  Saqlash ({multipleBooks.filter(b => b.name && b.author).length})
+                </Button>
+              </Group>
+            </Stack>
+            </Tabs.Panel>
+
+          <Tabs.Panel value="excel" pt="md">
+            <Stack gap="lg">
+              <Alert icon={<IconAlertCircle size={16} />} color="blue" title="Ma'lumot">
+                XLSX faylni tanlang - u avtomatik parse qilinadi va "Bir nechta kitob" tab'iga o'tadi
+              </Alert>
+
+              <FileInput
+                label="XLSX fayl tanlang"
+                placeholder="Fayl (.xlsx)"
+                icon={<IconUpload size={14} />}
+                accept=".xlsx,.xls"
+                onChange={(file) => {
+                  if (file) {
+                    parseExcelFile(file);
+                  }
+                }}
+              />
+
+              {excelPreview.length > 0 && (
+                <Box>
+                  <Text fw={600} mb="sm">Topilgan kitoblar ({excelPreview.length} ta):</Text>
+                  <div style={{ overflowX: 'auto', maxHeight: '300px', overflowY: 'auto' }}>
+                    <Table striped size="sm">
+                      <Table.Thead>
+                        <Table.Tr>
+                          <Table.Th>Kitob nomi</Table.Th>
+                          <Table.Th>Muallif</Table.Th>
+                        </Table.Tr>
+                      </Table.Thead>
+                      <Table.Tbody>
+                        {excelPreview.map((book, idx) => (
+                          <Table.Tr key={idx}>
+                            <Table.Td>{book.name}</Table.Td>
+                            <Table.Td>{book.author}</Table.Td>
+                          </Table.Tr>
+                        ))}
+                      </Table.Tbody>
+                    </Table>
+                  </div>
+                </Box>
+              )}
+
+              <Group justify="flex-end" mt="xl">
+                <Button variant="light" onClick={handleCloseModal} size="md">
+                  Bekor qilish
+                </Button>
+                <Button 
+                  onClick={handleSaveMultiple} 
+                  loading={loading} 
+                  size="md"
+                  disabled={excelPreview.length === 0}
+                >
+                  Saqlash ({excelPreview.length})
+                </Button>
+              </Group>
+            </Stack>
+          </Tabs.Panel>
+        </Tabs>
       </Modal>
     </Box>
   );
