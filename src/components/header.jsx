@@ -123,7 +123,7 @@ const Header = () => {
               color="red"
               onClick={handleLogout}
             >
-            <i class="fa-sharp-duotone fa-solid fa-user"></i>
+            <i className="fa-sharp-duotone fa-solid fa-user"></i>
             </Button>
           ) : (
             <NavLink to="/kutubxonachi" style={{ textDecoration: 'none' }}>

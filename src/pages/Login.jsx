@@ -257,6 +257,29 @@ const LoginPage = () => {
               'Kirish'
             )}
           </Button>
+
+          <Text
+            style={{
+              textAlign: 'center',
+              marginTop: 20,
+              color: isDark ? '#b0b0b0' : '#666',
+              fontSize: 14,
+            }}
+          >
+            Hisobingiz yo'qmi?{' '}
+            <Text
+              component="span"
+              style={{
+                color: '#0088cc',
+                fontWeight: 600,
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+              onClick={() => navigate('/signup')}
+            >
+              Ro'yxatdan o'tish
+            </Text>
+          </Text>
         </Box>
       </Container>
     </Box>
