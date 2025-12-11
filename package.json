@@ -17,7 +17,6 @@
     "@mantine/core": "^8.3.9",
     "@mantine/hooks": "^8.3.9",
     "@mantine/notifications": "^8.3.9",
-    "@pbe/react-yandex-maps": "^1.2.5",
     "@tabler/icons-react": "^3.35.0",
     "axios": "^1.13.2",
     "embla-carousel": "^8.6.0",

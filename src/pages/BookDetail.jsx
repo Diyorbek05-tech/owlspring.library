@@ -234,3 +234,5 @@ const BookDetail = () => {
 };
 
 export default BookDetail;
+
+//detail sahifa 
