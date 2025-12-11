@@ -280,6 +280,7 @@ const Kitoblar = () => {
                           display: 'flex',
                           flexDirection: 'column',
                           transition: 'transform 0.2s, box-shadow 0.2s',
+                          cursor: 'pointer',
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.transform = 'translateY(-4px)';
@@ -299,6 +300,7 @@ const Kitoblar = () => {
                               right: '8px',
                               zIndex: 10,
                             }}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <ActionIcon
                               size="md"
@@ -321,7 +323,10 @@ const Kitoblar = () => {
                           </Group>
                         )}
 
-                        <Card.Section>
+                        <Card.Section
+                          onClick={() => navigate(`/kitoblar/${book.id}`)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <Image
                             src={BOOK_IMAGE}
                             height={260}
@@ -331,7 +336,7 @@ const Kitoblar = () => {
                         </Card.Section>
 
                         <Stack gap="sm" p="md" style={{ flex: 1 }}>
-                          <Box>
+                          <Box onClick={() => navigate(`/kitoblar/${book.id}`)} style={{ cursor: 'pointer' }}>
                             <Text fw={700} size="md" mb="4px" lineClamp={2}>
                               {book.name}
                             </Text>
@@ -366,6 +371,7 @@ const Kitoblar = () => {
                             fullWidth
                             size="sm"
                             mt="auto"
+                            onClick={() => navigate(`/kitoblar/${book.id}`)}
                           >
                             Ko'rish
                           </Button>

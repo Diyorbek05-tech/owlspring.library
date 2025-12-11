@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@flaticon/flaticon-uicons": "^3.3.1",
     "@mantine/carousel": "^8.3.9",
     "@mantine/core": "^8.3.9",
     "@mantine/hooks": "^8.3.9",
@@ -20,6 +21,7 @@
     "axios": "^1.13.2",
     "embla-carousel": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
+    "flaticon": "^0.1.0",
     "lucide-react": "^0.556.0",
     "query": "^0.2.0",
     "react": "^19.2.0",

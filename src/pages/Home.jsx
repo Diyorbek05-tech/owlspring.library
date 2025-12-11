@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Box, Text, Skeleton, Card, Image, useMantineColorScheme, Badge, Button, Group, ActionIcon, TextInput } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconSearch } from '@tabler/icons-react';
 import axios from 'axios';
@@ -11,6 +12,7 @@ const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ix
 
 export default function HomePage() {
   const { colorScheme } = useMantineColorScheme();
+  const navigate = useNavigate();
   const isDark = colorScheme === 'dark';
   const [books, setBooks] = useState([]);
   const [allBooks, setAllBooks] = useState([]);
@@ -60,6 +62,10 @@ export default function HomePage() {
     );
 
     setBooks(filtered);
+  };
+
+  const handleBookClick = (bookId) => {
+    navigate(`/kitoblar/${bookId}`);
   };
 
   return (
@@ -156,32 +162,63 @@ export default function HomePage() {
             ) : books.length > 0 ? (
               books.map((book) => (
                 <Box key={book.id} style={{ flexShrink: 0, width: '280px' }}>
-                  <Card shadow="sm" radius="md" withBorder={false} bg={isDark ? 'dark.7' : 'white'}>
-                    <Card.Section>
+                  <Card
+                    shadow="sm"
+                    radius="md"
+                    withBorder={false}
+                    bg={isDark ? 'dark.7' : 'white'}
+                    style={{
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s, box-shadow 0.2s',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-4px)';
+                      e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <Card.Section
+                      onClick={() => handleBookClick(book.id)}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <Image src={BOOK_IMAGE} height={250} alt={book.name} style={{ objectFit: 'cover' }} />
                     </Card.Section>
                     <Box py="lg">
-                      <Text fw={600} size="sm" mb="xs" lineClamp={2}>
-                        {book.name}
-                      </Text>
-                      {book.author && (
-                        <>
-                          <Text size="xs" c="dimmed" fw={500}>Muallif:</Text>
-                          <Text size="xs" c="dimmed" mb="xs">{book.author}</Text>
-                        </>
-                      )}
-                      {book.publisher && (
-                        <>
-                          <Text size="xs" c="dimmed" fw={500}>Nashriyot:</Text>
-                          <Text size="xs" c="dimmed" mb="md">{book.publisher}</Text>
-                        </>
-                      )}
+                      <Box
+                        onClick={() => handleBookClick(book.id)}
+                        style={{ cursor: 'pointer' }}
+                      >
+                        <Text fw={600} size="sm" mb="xs" lineClamp={2}>
+                          {book.name}
+                        </Text>
+                        {book.author && (
+                          <>
+                            <Text size="xs" c="dimmed" fw={500}>Muallif:</Text>
+                            <Text size="xs" c="dimmed" mb="xs">{book.author}</Text>
+                          </>
+                        )}
+                        {book.publisher && (
+                          <>
+                            <Text size="xs" c="dimmed" fw={500}>Nashriyot:</Text>
+                            <Text size="xs" c="dimmed" mb="md">{book.publisher}</Text>
+                          </>
+                        )}
+                      </Box>
                       {book.quantity_in_library && (
                         <Badge size="lg" radius="xl" color="cyan" variant="light" fullWidth mb="md">
                           {book.quantity_in_library} TA KITOB MAVJUD
                         </Badge>
                       )}
-                      <Button variant="light" color="blue" fullWidth size="sm">
+                      <Button
+                        variant="light"
+                        color="blue"
+                        fullWidth
+                        size="sm"
+                        onClick={() => handleBookClick(book.id)}
+                      >
                         Ko'rish
                       </Button>
                     </Box>

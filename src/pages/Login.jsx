@@ -145,15 +145,6 @@ const LoginPage = () => {
         <Box style={{ textAlign: 'center', marginBottom: '30px' }}>
           <Text
             style={{
-              fontSize: 48,
-              marginBottom: 12,
-              textShadow: '0 4px 15px rgba(0,0,0,0.3)',
-            }}
-          >
-            📚
-          </Text>
-          <Text
-            style={{
               fontSize: 28,
               fontWeight: 700,
               color: '#fff',

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Box, Text, Card, Image, useMantineColorScheme, Button, Grid, Loader, Center, TextInput, Stack, Checkbox } from '@mantine/core';
 import { IconSearch, IconBook, IconPhone, IconMail, IconMapPin } from '@tabler/icons-react';
 import axios from 'axios';
@@ -11,6 +12,7 @@ const LIBRARY_IMAGE = 'https://ezma-client.vercel.app/assets/library-CY0z204p.we
 
 const Kutubxonalar = () => {
   const { colorScheme } = useMantineColorScheme();
+  const navigate = useNavigate();
   const isDark = colorScheme === 'dark';
   const [libraries, setLibraries] = useState([]);
   const [filteredLibraries, setFilteredLibraries] = useState([]);
@@ -75,6 +77,10 @@ const Kutubxonalar = () => {
       ...prev,
       sortBy: sortType
     }));
+  };
+
+  const handleLibraryClick = (libraryId) => {
+    navigate(`/kutubxonalar/${libraryId}`);
   };
 
   return (
@@ -173,7 +179,20 @@ const Kutubxonalar = () => {
                           radius="md" 
                           withBorder={false} 
                           bg={isDark ? 'dark.7' : 'white'} 
-                          style={{ height: '100%', position: 'relative' }}
+                          style={{
+                            height: '100%',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            transition: 'transform 0.2s, box-shadow 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-4px)';
+                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
                         >
                           {library.is_active && (
                             <Box
@@ -194,7 +213,10 @@ const Kutubxonalar = () => {
                             </Box>
                           )}
 
-                          <Card.Section>
+                          <Card.Section
+                            onClick={() => handleLibraryClick(library.id)}
+                            style={{ cursor: 'pointer' }}
+                          >
                             <Image 
                               src={library.image || LIBRARY_IMAGE} 
                               height={200} 
@@ -204,42 +226,46 @@ const Kutubxonalar = () => {
                           </Card.Section>
 
                           <Box p="lg">
-                            <Text fw={700} size="lg" mb="sm">
-                              {library.name}
-                            </Text>
+                            <Box
+                              onClick={() => handleLibraryClick(library.id)}
+                              style={{ cursor: 'pointer' }}
+                              mb="md"
+                            >
+                              <Text fw={700} size="lg" mb="sm">
+                                {library.name}
+                              </Text>
 
-                            <Stack gap="xs" mb="md">
-                              {library.total_books !== undefined && (
-                                <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <IconBook size={16} color={isDark ? '#aaa' : '#666'} />
-                                  <Text size="sm" c="dimmed">
-                                    {library.total_books} Kitob
-                                  </Text>
-                                </Box>
-                              )}
+                              <Stack gap="xs">
+                                {library.total_books !== undefined && (
+                                  <Box style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <IconBook size={16} color={isDark ? '#aaa' : '#666'} />
+                                    <Text size="sm" c="dimmed">
+                                      {library.total_books} Kitob
+                                    </Text>
+                                  </Box>
+                                )}
 
-                              {library.address && (
-                                <Box style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
-                                  <IconMapPin size={16} color={isDark ? '#aaa' : '#666'} style={{ marginTop: '2px', flexShrink: 0 }} />
-                                  <Text size="sm" c="dimmed" lineClamp={2}>
-                                    {library.address}
-                                  </Text>
-                                </Box>
-                              )}
-                            </Stack>
+                                {library.address && (
+                                  <Box style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                                    <IconMapPin size={16} color={isDark ? '#aaa' : '#666'} style={{ marginTop: '2px', flexShrink: 0 }} />
+                                    <Text size="sm" c="dimmed" lineClamp={2}>
+                                      {library.address}
+                                    </Text>
+                                  </Box>
+                                )}
+                              </Stack>
+                            </Box>
 
-                            <div style={{ position: 'sticky', bottom: 0 }}>
-                                <Button 
-                                  variant="light" 
-                                  color="blue" 
-                                  fullWidth 
-                                  size="sm"
-                                  leftSection={<IconMapPin size={16} />}
-                                >
-                                  Google Maps
-                                </Button>
-                              </div>
-
+                            <Button 
+                              variant="light" 
+                              color="blue" 
+                              fullWidth 
+                              size="sm"
+                              leftSection={<IconMapPin size={16} />}
+                              onClick={() => handleLibraryClick(library.id)}
+                            >
+                              Ko'rish
+                            </Button>
                           </Box>
                         </Card>
                       </Grid.Col>
