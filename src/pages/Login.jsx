@@ -113,7 +113,7 @@ const LoginPage = () => {
       style={{
         minHeight: '100vh',
         backgroundImage:
-          'url(https://as2.ftcdn.net/jpg/09/16/06/87/1000_F_916068754_Zog1aUJEyx7TWrQ9iQUequx2eBOX29sh.jpg)',
+          'url(https://media.istockphoto.com/id/1193287049/photo/bookshelves-in-modern-public-library.jpg?s=612x612&w=0&k=20&c=Ri3YI-iK_uo9SMzvJ_Z2La_D0kHJPS8ZK1ziXWTDya0=)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',

@@ -117,14 +117,25 @@ const Header = () => {
           </button>
 
           {isAuthenticated ? (
-            <Button 
-              variant="filled" 
-              radius="md" 
-              color="red"
-              onClick={handleLogout}
-            >
-            <i className="fa-sharp-duotone fa-solid fa-user"></i>
-            </Button>
+            <Group gap="sm">
+              <NavLink to="/profile" style={{ textDecoration: 'none' }}>
+                <Button 
+                  variant="filled" 
+                  radius="md" 
+                  color="blue"
+                >
+                  <i className="fa-sharp-duotone fa-solid fa-user"></i>
+                </Button>
+              </NavLink>
+              <Button 
+                variant="filled" 
+                radius="md" 
+                color="red"
+                onClick={handleLogout}
+              >
+                Chiqish
+              </Button>
+            </Group>
           ) : (
             <NavLink to="/kutubxonachi" style={{ textDecoration: 'none' }}>
               <Button variant="filled" radius="md">

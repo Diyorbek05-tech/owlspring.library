@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Box, Text, Card, Image, useMantineColorScheme, Badge, Button, Pagination, Grid, Loader, Center, Modal, TextInput, NumberInput, Group, Alert, ActionIcon, Stack, Tabs, FileInput, Table, Menu } from '@mantine/core';
 import { IconPlus, IconEdit, IconTrash, IconAlertCircle, IconSearch, IconUpload, IconChevronDown } from '@tabler/icons-react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 const API_BASE = 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1';
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
@@ -236,12 +236,36 @@ const Kitoblar = () => {
 
   const parseExcelFile = async (file) => {
     try {
+      const workbook = new ExcelJS.Workbook();
       const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      await workbook.xlsx.load(arrayBuffer);
+      const worksheet = workbook.worksheets[0];
 
-      console.log('XLSX ma\'lumotlari:', jsonData);
+      const jsonData = [];
+      const headerRow = worksheet.getRow(1);
+      const headers = [];
+
+      headerRow.eachCell((cell, colNumber) => {
+        headers[colNumber] = cell.value ? String(cell.value).toLowerCase() : '';
+      });
+
+      worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return;
+        
+        const rowData = {};
+        row.eachCell((cell, colNumber) => {
+          const header = headers[colNumber];
+          if (header) {
+            rowData[header] = cell.value;
+          }
+        });
+        
+        if (Object.keys(rowData).length > 0) {
+          jsonData.push(rowData);
+        }
+      });
+
+      console.log('ExcelJS ma\'lumotlari:', jsonData);
 
       if (jsonData.length === 0) {
         setError('Faylda ma\'lumot topilmadi');
@@ -251,10 +275,10 @@ const Kitoblar = () => {
 
       const parsedBooks = jsonData.map(row => {
         const book = {
-          name: String(row.name || row.Kitob || row['Kitob nomi'] || '').trim() || '',
-          author: String(row.author || row.Muallif || row['Muallif nomi'] || '').trim() || '',
-          publisher: String(row.publisher || row.Nashriyot || '').trim() || '',
-          quantity_in_library: String(row.quantity_in_library || row.soni || row.Soni || '0').trim() || '0',
+          name: String(row.name || row.kitob || row['kitob nomi'] || '').trim() || '',
+          author: String(row.author || row.muallif || row['muallif nomi'] || '').trim() || '',
+          publisher: String(row.publisher || row.nashriyot || '').trim() || '',
+          quantity_in_library: String(row.quantity_in_library || row.soni || '0').trim() || '0',
         };
         console.log('Parse qilingan kitob:', book);
         return book;

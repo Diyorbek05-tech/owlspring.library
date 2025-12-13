@@ -19,8 +19,8 @@ import {
   Modal,
 } from '@mantine/core';
 import { IconArrowLeft, IconAlertCircle, IconPhone, IconMail, IconMapPin, IconBook } from '@tabler/icons-react';
+import { YMaps, Map, Placemark } from 'react-yandex-maps';
 import axios from 'axios';
-import Map from './Map'; 
 
 const api = axios.create({
   baseURL: 'https://org-ave-jimmy-learners.trycloudflare.com/api/v1',
@@ -28,6 +28,138 @@ const api = axios.create({
 
 const LIBRARY_IMAGE = 'https://ezma-client.vercel.app/assets/library-CY0z204p.webp';
 const BOOK_IMAGE = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
+
+const MapComponent = ({ address, libraryName }) => {
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
+  const [mapCenter, setMapCenter] = useState([41.2995, 69.2401]);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [locationName, setLocationName] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  useEffect(() => {
+    if (address) {
+      fetchCoordinates();
+    }
+  }, [address]);
+
+  const fetchCoordinates = async () => {
+    try {
+      setLoading(true);
+      console.log('Manzil:', address);
+      const response = await fetch(
+        `https://geocode-maps.yandex.ru/1.x/?apikey=bc32072f-a50d-4f7e-b22c-a4b70bba1202&geocode=${encodeURIComponent(address)}&format=json&lang=uz_UZ`
+      );
+      const data = await response.json();
+      console.log('Geocode javob:', data);
+      
+      if (data.response.GeoObjectCollection.featureMember.length > 0) {
+        const geoObject = data.response.GeoObjectCollection.featureMember[0];
+        const coords = geoObject.GeoObject.Point.pos.split(' ');
+        const center = [parseFloat(coords[1]), parseFloat(coords[0])];
+        console.log('Topilgan koordinatalar:', center);
+        setMapCenter(center);
+        setSelectedLocation(center);
+        setLocationName(geoObject.GeoObject.name || libraryName);
+      } else {
+        console.warn('Koordinata topilmadi');
+        setLocationName(libraryName);
+      }
+    } catch (error) {
+      console.error('Koordinata olishda xatolik:', error);
+      setLocationName(libraryName);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMapClick = async (e) => {
+    const coords = e.get('coords');
+    setMapCenter(coords);
+    setSelectedLocation(coords);
+    setLocationLoading(true);
+    
+    try {
+      const response = await fetch(
+        `https://geocode-maps.yandex.ru/1.x/?apikey=bc32072f-a50d-4f7e-b22c-a4b70bba1202&geocode=${coords[1]},${coords[0]}&format=json&lang=uz_UZ`
+      );
+      const data = await response.json();
+      
+      const geoObject = data.response.GeoObjectCollection.featureMember[0];
+      if (geoObject) {
+        const name = geoObject.GeoObject.name;
+        const description = geoObject.GeoObject.description;
+        setLocationName(`${name}${description ? ', ' + description : ''}`);
+      } else {
+        setLocationName('Joy nomi topilmadi');
+      }
+    } catch (error) {
+      console.error('Xatolik:', error);
+      setLocationName('Joy nomini olishda xatolik');
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Center style={{ height: '100%' }}>
+        <Loader size="lg" />
+      </Center>
+    );
+  }
+
+  return (
+    <Box style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {selectedLocation && locationName && (
+        <Box p="md" style={{ backgroundColor: isDark ? '#2C2E33' : '#f8f9fa' }}>
+          <Group gap="xs" wrap="wrap">
+            <Text fw={600} size="sm">
+              Tanlangan joy:
+            </Text>
+            {locationLoading ? (
+              <Group gap="xs">
+                <Loader size="xs" color="cyan" />
+                <Text size="sm">Yuklanmoqda...</Text>
+              </Group>
+            ) : (
+              <Text size="sm">{locationName}</Text>
+            )}
+          </Group>
+          <Text size="xs" c="dimmed" mt={4}>
+            Koordinatalar: {selectedLocation[0].toFixed(6)}, {selectedLocation[1].toFixed(6)}
+          </Text>
+        </Box>
+      )}
+      <Box style={{ flex: 1 }}>
+        <YMaps query={{ apikey: 'bc32072f-a50d-4f7e-b22c-a4b70bba1202', lang: 'uz_UZ' }}>
+          <Map
+            width="100%"
+            height="100%"
+            state={{
+              center: mapCenter,
+              zoom: 15,
+            }}
+            onClick={handleMapClick}
+          >
+            {selectedLocation && (
+              <Placemark
+                geometry={selectedLocation}
+                options={{
+                  preset: 'islands#redDotIcon',
+                }}
+                properties={{
+                  balloonContent: address || libraryName,
+                }}
+              />
+            )}
+          </Map>
+        </YMaps>
+      </Box>
+    </Box>
+  );
+};
 
 const LibraryDetail = () => {
   const { id } = useParams();
@@ -280,7 +412,7 @@ const LibraryDetail = () => {
           centered
         >
           {library?.address && (
-            <Map address={library.address} libraryName={library.name} />
+            <MapComponent address={library.address} libraryName={library.name} />
           )}
         </Modal>
 
